@@ -19,6 +19,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
+        highlightColor: Colors.transparent,
+        
       ),
       home: const MainScreen(),
       debugShowCheckedModeBanner: false,
@@ -88,7 +90,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Vireo')),
       body: _selectedIndex == 2 ? _pages[0] : _pages[_selectedIndex],
       bottomNavigationBar: ClipRRect(
         borderRadius: const BorderRadius.only(
