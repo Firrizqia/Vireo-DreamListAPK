@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:vireo/constants/primary_colors.dart';
+import 'package:vireo/screen/dreamdetail_page.dart';
 
 class DreamList extends StatefulWidget {
   const DreamList({super.key});
@@ -119,21 +120,38 @@ class _DreamListState extends State<DreamList> {
     );
   }
 
-  Widget _buildDreamTasks() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: tasks.length,
-      itemBuilder: (context, index) {
-        final task = tasks[index];
-        return _dreamListCard(
+ Widget _buildDreamTasks() {
+  return ListView.builder(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    itemCount: tasks.length,
+    itemBuilder: (context, index) {
+      final task = tasks[index];
+      return GestureDetector(
+        onTap: () {
+          // Arahkan ke halaman detail dengan passing data
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DreamDetailPage(
+                title: task['title'],
+                desc: task['desc'],
+                date: task['date'],
+                progress: task['progress'],
+              ),
+            ),
+          );
+        },
+        child: _dreamListCard(
           task['date'],
           task['title'],
           task['desc'],
           task['progress'],
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
 
   Widget _dreamListCard(
     String date,

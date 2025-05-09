@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vireo/screen/add_dream.dart';
 import 'package:vireo/screen/diary_page.dart';
 import 'package:vireo/screen/dream_list.dart';
 import 'package:vireo/screen/home_page.dart';
@@ -12,7 +13,6 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 void main() async {
-   
   WidgetsFlutterBinding.ensureInitialized();
 
   // Pengaturan awal notifikasi untuk Android
@@ -31,20 +31,20 @@ void main() async {
 
 Future<void> showNotification() async {
   // Ambil waktu saat ini
-  
 
   // Buat notifikasi
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-    'channel_id',
-    'channel_name',
-    channelDescription: 'your_channel_description',
-    importance: Importance.high,
-    priority: Priority.high,
-  );
+        'channel_id',
+        'channel_name',
+        channelDescription: 'your_channel_description',
+        importance: Importance.high,
+        priority: Priority.high,
+      );
 
-  const NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+  );
 
   await flutterLocalNotificationsPlugin.show(
     0,
@@ -55,20 +55,16 @@ Future<void> showNotification() async {
 }
 
 class MyApp extends StatelessWidget {
-  
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    
     return MaterialApp(
-      
       title: 'Vireo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
         highlightColor: Colors.transparent,
-        
       ),
       home: const OnboardingScreen(),
       debugShowCheckedModeBanner: false,
@@ -84,10 +80,10 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
-  void _notifPengembang(){
+  void _notifPengembang() {
     showNotification();
   }
+
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -119,8 +115,12 @@ class _MainScreenState extends State<MainScreen> {
               ListTile(
                 leading: const Icon(Icons.auto_awesome_sharp),
                 title: const Text('Add Dream'),
-                onTap: () {
-                  _notifPengembang();
+                onTap: () async {
+                  Navigator.pop(context); // Menutup bottom sheet
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddDreamPage()),
+                  );
                 },
               ),
               ListTile(

@@ -65,6 +65,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    //sisanya masuk ke sini
                     if (item['image'] != null)
                       Image.asset(item['image']!, height: 250),
                     const SizedBox(height: 48),
@@ -84,6 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       style: const TextStyle(fontSize: 16, color: Colors.black),
                     ),
                     const SizedBox(height: 60),
+                    //awal masuk disini karena index 0
                     if (index == 0)
                       ElevatedButton(
                         onPressed: () {
@@ -154,7 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       icon: Icon(
                         _currentIndex == onboardingData.length - 1
                             ? Icons.check
-                            : Icons.arrow_forward,
+                            : Icons.arrow_forward_ios_rounded,
                         color: Colors.white,
                       ),
                       onPressed: () {
