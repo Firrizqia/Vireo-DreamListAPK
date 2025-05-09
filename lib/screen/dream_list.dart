@@ -26,19 +26,19 @@ class _DreamListState extends State<DreamList> {
       'progress': 0.6,
     },
     {
-      'date': '5 Juli 2025',
+      'date': '20 Agustus 2027',
       'title': 'Beli Rumah Cash',
       'desc': 'Target impian',
       'progress': 0.4,
     },
     {
-      'date': '5 Juli 2025',
+      'date': '12 Januari 2033',
       'title': 'Pergi ke Planet Mars',
       'desc': 'One day maybe',
       'progress': 0.1,
     },
     {
-      'date': '5 Juli 2025',
+      'date': '21 Maret 2047',
       'title': 'Pergi antar universe',
       'desc': 'One day maybe',
       'progress': 0.0,
@@ -152,7 +152,19 @@ class _DreamListState extends State<DreamList> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(date, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: Text(
+                  date,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
           Text(
             title,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -164,6 +176,7 @@ class _DreamListState extends State<DreamList> {
             '${(progress * 100).toInt()}%',
             style: const TextStyle(color: primaryColor),
           ),
+          const SizedBox(height: 4),
           LinearProgressIndicator(
             value: progress,
             backgroundColor: accentColor,
