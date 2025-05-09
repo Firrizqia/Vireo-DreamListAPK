@@ -4,17 +4,64 @@ import 'package:vireo/screen/dream_list.dart';
 import 'package:vireo/screen/home_page.dart';
 import 'package:vireo/screen/profile_page.dart';
 import 'package:vireo/constants/primary_colors.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-void main() {
+// Inisialisasi plugin notifikasi
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+void main() async {
+   
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Pengaturan awal notifikasi untuk Android
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('ic_stat_notify');
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  // Inisialisasi plugin
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
   runApp(const MyApp());
 }
 
+Future<void> showNotification() async {
+  // Ambil waktu saat ini
+  
+
+  // Buat notifikasi
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'channel_id',
+    'channel_name',
+    channelDescription: 'your_channel_description',
+    importance: Importance.high,
+    priority: Priority.high,
+  );
+
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    'Mohon Maaf',
+    'Aplikasi sedang dalam pengembangan',
+    platformChannelSpecifics,
+  );
+}
+
 class MyApp extends StatelessWidget {
+  
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    
     return MaterialApp(
+      
       title: 'Vireo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
@@ -36,6 +83,10 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+
+  void _notifPengembang(){
+    showNotification();
+  }
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -68,16 +119,14 @@ class _MainScreenState extends State<MainScreen> {
                 leading: const Icon(Icons.auto_awesome_sharp),
                 title: const Text('Add Dream'),
                 onTap: () {
-                  Navigator.pop(context);
-                  // Tambahkan aksi di sini
+                  _notifPengembang();
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.book),
                 title: const Text('Add Diary'),
                 onTap: () {
-                  Navigator.pop(context);
-                  // Tambahkan aksi di sini
+                  _notifPengembang();
                 },
               ),
             ],
