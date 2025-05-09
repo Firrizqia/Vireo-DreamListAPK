@@ -5,6 +5,7 @@ import 'package:vireo/screen/home_page.dart';
 import 'package:vireo/screen/profile_page.dart';
 import 'package:vireo/constants/primary_colors.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:vireo/screen/onboarding_page.dart';
 
 // Inisialisasi plugin notifikasi
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -69,7 +70,7 @@ class MyApp extends StatelessWidget {
         highlightColor: Colors.transparent,
         
       ),
-      home: const MainScreen(),
+      home: const OnboardingScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
