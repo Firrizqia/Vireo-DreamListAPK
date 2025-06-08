@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:vireo/constants/primary_colors.dart';
 
 class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({super.key});
   @override
+  // ignore: invalid_use_of_private_type_in_public_api
   _EditProfilePageState createState() => _EditProfilePageState();
 }
 
