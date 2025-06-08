@@ -19,7 +19,10 @@ class _DreamDetailPageState extends State<DreamDetailPage> {
     super.initState();
     // decode step status dari progress sebelumnya (estimasi kasar: kalau 0.6 dan 5 step, berarti 3 selesai)
     int completed = (widget.dream.progress * widget.dream.steps.length).round();
-    stepStatus = List<bool>.generate(widget.dream.steps.length, (i) => i < completed);
+    stepStatus = List<bool>.generate(
+      widget.dream.steps.length,
+      (i) => i < completed,
+    );
   }
 
   double getProgress() {
@@ -47,18 +50,41 @@ class _DreamDetailPageState extends State<DreamDetailPage> {
     final dream = widget.dream;
 
     return Scaffold(
-      appBar: AppBar(title: Text(dream.title)),
+      appBar: AppBar(title: Text("Mimpi ku")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Tanggal: ${dream.date}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Text(dream.desc, style: const TextStyle(color: Colors.grey)),
-            const SizedBox(height: 16),
+            Text(
+              'Target: ${dream.date}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: Text(
+                dream.title,
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+             Center(
+              child: Text(
+                dream.desc,
+                style: const TextStyle(
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
             LinearProgressIndicator(value: getProgress()),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
+            Text(
+              'Langkah-langkah Yang Harus DIselesaikan:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: dream.steps.length,
