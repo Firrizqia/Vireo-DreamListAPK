@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vireo/db/db_helper.dart';
+import 'package:vireo/models/dream_model.dart';
 import 'package:vireo/screen/add_dream.dart';
 import 'package:vireo/screen/diary_page.dart';
 import 'package:vireo/screen/dream_list.dart';
@@ -94,6 +96,8 @@ class _MainScreenState extends State<MainScreen> {
     const ProfilePage(),
   ];
 
+  List<Dream> dreamList = [];
+
   void _onItemTapped(int index) {
     if (index == 2) {
       _showBottomDialog();
@@ -101,6 +105,13 @@ class _MainScreenState extends State<MainScreen> {
     }
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+   Future<void> _loadDreams() async {
+    final dreams = await DatabaseHelper().getDreams();
+    setState(() {
+      dreamList = dreams;
     });
   }
 
@@ -116,13 +127,20 @@ class _MainScreenState extends State<MainScreen> {
                 leading: const Icon(Icons.auto_awesome_sharp),
                 title: const Text('Add Dream'),
                 onTap: () async {
-                  Navigator.pop(context); // Menutup bottom sheet
-                  await Navigator.push(
+                  Navigator.pop(context); // tutup bottom sheet
+                  final result = await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AddDreamPage()),
+                    MaterialPageRoute(
+                      builder: (context) => const AddDreamPage(),
+                    ),
                   );
+                  if (result == true) {
+                    // Jika AddDreamPage pop dengan "true", reload data
+                    _loadDreams();
+                  }
                 },
               ),
+
               ListTile(
                 leading: const Icon(Icons.book),
                 title: const Text('Add Diary'),

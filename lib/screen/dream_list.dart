@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:vireo/constants/primary_colors.dart';
+import 'package:vireo/db/db_helper.dart';
+import 'package:vireo/models/dream_model.dart';
+import 'package:vireo/screen/add_dream.dart';
 import 'package:vireo/screen/dreamdetail_page.dart';
 
 class DreamList extends StatefulWidget {
@@ -12,49 +16,69 @@ class DreamList extends StatefulWidget {
 
 class _DreamListState extends State<DreamList> {
   int selectedDateIndex = 0;
+  final List<DateTime> weekDates =
+      List.generate(7, (i) => DateTime.now().add(Duration(days: i)));
+  List<Dream> dreamList = [];
+  List<Dream> filteredDreamList = [];
 
-  // Buat 7 hari ke depan berdasarkan hari ini
-  final List<DateTime> weekDates = List.generate(
-    7,
-    (i) => DateTime.now().add(Duration(days: i)),
-  );
 
-  final List<Map<String, dynamic>> tasks = [
-    {
-      'date': '5 Juli 2025',
-      'title': 'Punya Mobil Sport',
-      'desc': 'Dream progress',
-      'progress': 0.6,
-    },
-    {
-      'date': '20 Agustus 2027',
-      'title': 'Beli Rumah Cash',
-      'desc': 'Target impian',
-      'progress': 0.4,
-    },
-    {
-      'date': '12 Januari 2033',
-      'title': 'Pergi ke Planet Mars',
-      'desc': 'One day maybe',
-      'progress': 0.1,
-    },
-    {
-      'date': '21 Maret 2047',
-      'title': 'Pergi antar universe',
-      'desc': 'One day maybe',
-      'progress': 0.0,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadDreams();
+  }
+
+  Future<void> _loadDreams() async {
+    final dreams = await DatabaseHelper().getDreams();
+    setState(() {
+      dreamList = dreams;
+      filteredDreamList = dreams;
+    });
+  }
+
+  // Tambahkan fungsi untuk navigasi ke AddDreamPage
+  Future<void> _goToAddDreamPage() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddDreamPage(),
+      ),
+    );
+
+    if (result == true) {
+      // Kalau AddDreamPage pop dengan "true", reload data
+      _loadDreams();
+    }
+  }
+
+  void _filterDreamsByDate(DateTime? date) {
+  setState(() {
+    if (date == null) {
+      filteredDreamList = dreamList;
+    } else {
+      final dateString = DateFormat('d MMMM yyyy').format(date);
+      filteredDreamList = dreamList.where((dream) => dream.date == dateString).toList();
+    }
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text("Dream List"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _goToAddDreamPage,
+          )
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 16),
-            _buildHeader(),
             const SizedBox(height: 16),
             _buildDateSelector(),
             const SizedBox(height: 16),
@@ -65,89 +89,178 @@ class _DreamListState extends State<DreamList> {
     );
   }
 
-  Widget _buildHeader() {
-    return Center(
-      child: Text(
-        "Dream List",
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
   Widget _buildDateSelector() {
-    return SizedBox(
-      height: 80,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: weekDates.length,
-        itemBuilder: (context, index) {
-          final date = weekDates[index];
-          final isSelected = index == selectedDateIndex;
+  return SizedBox(
+    height: 80,
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: weekDates.length + 1,
+      itemBuilder: (context, index) {
+        final isSelected = index == selectedDateIndex;
 
+        if (index == 0) {
           return GestureDetector(
-            onTap: () => setState(() => selectedDateIndex = index),
+            onTap: () {
+              setState(() => selectedDateIndex = 0);
+              _filterDreamsByDate(null);
+            },
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 5),
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
               decoration: BoxDecoration(
-                color: isSelected ? primaryColor : accentColor,
+                color: isSelected ? primaryColor : Colors.grey[300],
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    DateFormat.MMMd().format(date),
+                    "Seluruh Mimpi",
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.black87,
                       fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat.E().format(date), // Sen, Sel, Rab...
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[700],
-                      fontSize: 12,
                     ),
                   ),
                 ],
               ),
             ),
           );
-        },
-      ),
+        }
+
+        final date = weekDates[index - 1];
+        return GestureDetector(
+          onTap: () {
+            setState(() => selectedDateIndex = index);
+            _filterDreamsByDate(date);
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            decoration: BoxDecoration(
+              color: isSelected ? primaryColor : Colors.grey[300],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  DateFormat.MMMd().format(date),
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  DateFormat.E().format(date),
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.grey[700],
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+
+ Widget _buildDreamTasks() {
+  if (filteredDreamList.isEmpty) {
+    return const Center(
+      child: Text('Tidak ada mimpi pada tanggal ini'),
     );
   }
 
- Widget _buildDreamTasks() {
   return ListView.builder(
     padding: const EdgeInsets.symmetric(horizontal: 16),
-    itemCount: tasks.length,
+    itemCount: filteredDreamList.length,
     itemBuilder: (context, index) {
-      final task = tasks[index];
-      return GestureDetector(
-        onTap: () {
-          // Arahkan ke halaman detail dengan passing data
+      final dream = filteredDreamList[index];
+      return Slidable(
+  key: ValueKey(dream.id),
+  endActionPane: ActionPane(
+    motion: const DrawerMotion(),
+    children: [
+      SlidableAction(
+        onPressed: (context) {
+          // Navigasi ke halaman edit (gunakan AddDreamPage jika bisa reuse)
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DreamDetailPage(
-                title: task['title'],
-                desc: task['desc'],
-                date: task['date'],
-                progress: task['progress'],
+              builder: (context) => AddDreamPage(
+                existingDream: dream, // pastikan AddDreamPage bisa handle edit
               ),
             ),
-          );
+          ).then((result) {
+            if (result == true) _loadDreams();
+          });
         },
-        child: _dreamListCard(
-          task['date'],
-          task['title'],
-          task['desc'],
-          task['progress'],
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        icon: Icons.edit,
+        label: 'Edit',
+        borderRadius: BorderRadius.circular(16),
+      ),
+      SlidableAction(
+        onPressed: (context) async {
+          final confirm = await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Konfirmasi'),
+              content: const Text('Yakin ingin menghapus mimpi ini?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: const Text('Batal'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: const Text('Hapus'),
+                ),
+              ],
+            ),
+          );
+
+          if (confirm == true) {
+            await DatabaseHelper().deleteDream(dream.id!);
+            _loadDreams();
+          }
+        },
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        icon: Icons.delete,
+        label: 'Hapus',
+        borderRadius: BorderRadius.circular(16),
+      ),
+    ],
+  ),
+  child: GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DreamDetailPage(
+            title: dream.title,
+            desc: dream.desc,
+            date: dream.date,
+            progress: dream.progress,
+          ),
         ),
       );
+    },
+    child: _dreamListCard(
+      dream.date,
+      dream.title,
+      dream.desc,
+      dream.progress,
+    ),
+  ),
+);
+
     },
   );
 }
@@ -170,17 +283,12 @@ class _DreamListState extends State<DreamList> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: Text(
-                  date,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-            ],
+          Align(
+            alignment: Alignment.topRight,
+            child: Text(
+              date,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -197,8 +305,8 @@ class _DreamListState extends State<DreamList> {
           const SizedBox(height: 4),
           LinearProgressIndicator(
             value: progress,
-            backgroundColor: accentColor,
-            color: secondaryColor,
+            backgroundColor: Colors.grey[300],
+            color: primaryColor,
           ),
         ],
       ),
