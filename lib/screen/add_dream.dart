@@ -78,8 +78,10 @@ class _AddDreamPageState extends State<AddDreamPage> {
         } else {
           await DatabaseHelper().updateDream(dream);
         }
+        if (!mounted) return;
         Navigator.pop(context, true);
       } catch (e) {
+         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal menyimpan mimpi: $e')),
         );

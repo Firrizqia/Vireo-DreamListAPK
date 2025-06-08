@@ -24,7 +24,7 @@ class Dream {
       'desc': desc,
       'date': date,
       'progress': progress,
-      'steps': jsonEncode(steps),  // Encode list ke JSON string
+      'steps': jsonEncode(steps), // Simpan list sebagai JSON string
     };
   }
 
@@ -34,8 +34,10 @@ class Dream {
       title: map['title'],
       desc: map['desc'],
       date: map['date'],
-      progress: map['progress'],
-      steps: List<String>.from(jsonDecode(map['steps'])),
+      progress: (map['progress'] as num).toDouble(),
+      steps: (map['steps'] != null && map['steps'] is String)
+          ? List<String>.from(jsonDecode(map['steps']))
+          : [],
     );
   }
 }
