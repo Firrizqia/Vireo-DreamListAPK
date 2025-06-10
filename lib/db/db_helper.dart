@@ -19,6 +19,9 @@ class DatabaseHelper {
   Future<Database> _initDB() async {
     final path = join(await getDatabasesPath(), 'dreams.db');
 
+    //un-komen jika ingin menghapus database lama
+    //await deleteDatabase(path);
+
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -43,7 +46,8 @@ class DatabaseHelper {
       username TEXT,
       email TEXT,
       age TEXT,
-      gender TEXT
+      gender TEXT,
+      profileImagePath TEXT
     )
   ''');
   }

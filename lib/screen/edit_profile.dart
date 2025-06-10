@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:vireo/constants/primary_colors.dart';
 import 'package:vireo/db/db_helper.dart';
 import 'package:vireo/models/user_model.dart';
@@ -18,6 +22,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _emailController = TextEditingController();
   final _ageController = TextEditingController();
   String _gender = 'Laki-laki';
+  String? _imagePath;
 
   final List<String> _genderOptions = ['Laki-laki', 'Perempuan', 'Lainnya'];
 
@@ -36,6 +41,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _emailController.text = user.email;
         _ageController.text = user.age;
         _gender = user.gender;
+        _imagePath = user.profileImagePath;
+      });
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = path.basename(pickedFile.path);
+      final savedImage = await File(pickedFile.path).copy('${appDir.path}/$fileName');
+
+      setState(() {
+        _imagePath = savedImage.path;
       });
     }
   }
@@ -49,6 +70,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         email: _emailController.text,
         age: _ageController.text,
         gender: _gender,
+        profileImagePath: _imagePath ?? '',
       );
 
       final existingUser = await dbHelper.getUser();
@@ -61,14 +83,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil berhasil diperbarui')),
-      );
-
-      Navigator.pop(
-        context,
-        true,
-      ); // penting agar ProfilePage tahu profil diperbarui
+      Navigator.pop(context, true);
     }
   }
 
@@ -86,15 +101,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
           key: _formKey,
           child: Column(
             children: [
-              _buildTextField(
-                label: 'Nama Lengkap',
-                controller: _nameController,
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage:
+                      _imagePath != null && _imagePath!.isNotEmpty
+                          ? FileImage(File(_imagePath!))
+                          : null,
+                  child: _imagePath == null || _imagePath!.isEmpty
+                      ? Icon(Icons.camera_alt, size: 40, color: Colors.grey)
+                      : null,
+                ),
               ),
+              SizedBox(height: 20),
+              _buildTextField(label: 'Nama Lengkap', controller: _nameController),
               SizedBox(height: 15),
-              _buildTextField(
-                label: 'Username',
-                controller: _usernameController,
-              ),
+              _buildTextField(label: 'Username', controller: _usernameController),
               SizedBox(height: 15),
               _buildTextField(
                 label: 'Email',
@@ -116,20 +139,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
               DropdownButtonFormField<String>(
                 value: _gender,
                 decoration: InputDecoration(labelText: 'Jenis Kelamin'),
-                items:
-                    _genderOptions
-                        .map(
-                          (gender) => DropdownMenuItem(
-                            value: gender,
-                            child: Text(gender),
-                          ),
-                        )
-                        .toList(),
-                onChanged: (val) {
-                  setState(() {
-                    _gender = val!;
-                  });
-                },
+                items: _genderOptions
+                    .map((gender) => DropdownMenuItem(
+                          value: gender,
+                          child: Text(gender),
+                        ))
+                    .toList(),
+                onChanged: (val) => setState(() => _gender = val!),
               ),
               SizedBox(height: 30),
               ElevatedButton(
@@ -161,8 +177,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         border: OutlineInputBorder(),
       ),
       keyboardType: keyboardType,
-      validator:
-          validator ??
+      validator: validator ??
           (val) {
             if (val == null || val.isEmpty) return '$label tidak boleh kosong';
             return null;

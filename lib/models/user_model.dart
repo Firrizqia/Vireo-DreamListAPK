@@ -5,6 +5,8 @@ class UserModel {
   String email;
   String age;
   String gender;
+  String profileImagePath;
+
 
   UserModel({
     this.id,
@@ -13,6 +15,7 @@ class UserModel {
     required this.email,
     required this.age,
     required this.gender,
+    required this.profileImagePath,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +26,7 @@ class UserModel {
       'email': email,
       'age': age,
       'gender': gender,
+      'profileImagePath': profileImagePath,
     };
   }
 
@@ -34,6 +38,7 @@ class UserModel {
       email: map['email'],
       age: map['age'],
       gender: map['gender'],
+      profileImagePath: map['profileImagePath'] ?? '',
     );
   }
 }
