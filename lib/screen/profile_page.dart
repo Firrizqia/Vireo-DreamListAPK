@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:vireo/screen/edit_profile.dart';
+import 'package:vireo/db/db_helper.dart';
+import 'package:vireo/models/user_model.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final dbHelper = DatabaseHelper();
+  UserModel? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = await dbHelper.getUser();
+    setState(() {
+      _user = user;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +44,18 @@ class ProfilePage extends StatelessWidget {
                   buildMenuItem(
                     icon: Icons.edit,
                     label: 'Edit Profil',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => EditProfilePage()),
-                    ),
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EditProfilePage()),
+                      );
+                      if (result == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Profil berhasil diperbarui')),
+                        );
+                        _loadUserData();
+                      }
+                    },
                   ),
                   const Divider(height: 0),
                   buildMenuItem(
@@ -44,21 +75,21 @@ class ProfilePage extends StatelessWidget {
 
   Widget buildUserInfo() {
     return Column(
-      children: const [
-        CircleAvatar(
+      children: [
+        const CircleAvatar(
           radius: 45,
           backgroundColor: Color(0xFFECECEC),
           child: Icon(Icons.person, size: 45, color: Colors.blueGrey),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
-          'Ahmad User!',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          _user?.name ?? 'Nama Pengguna',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
-          'ahmaduser@email.com',
-          style: TextStyle(color: Colors.grey),
+          _user?.email ?? 'email@example.com',
+          style: const TextStyle(color: Colors.grey),
         ),
       ],
     );
@@ -121,6 +152,4 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
-
- 
 }
