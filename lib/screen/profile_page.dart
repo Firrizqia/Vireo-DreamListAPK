@@ -33,7 +33,6 @@ class ProfilePage extends StatelessWidget {
                     onTap: () => showTentangAplikasiDialog(context),
                   ),
                   const SizedBox(height: 180),
-                  buildLogoutButton(context),
                 ],
               ),
             ),
@@ -123,48 +122,5 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget buildLogoutButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Align(
-        alignment: Alignment.center,
-        child: TextButton.icon(
-          onPressed: () => showLogoutDialog(context),
-          icon: const Icon(Icons.logout, color: Colors.red),
-          label: const Text(
-            'Logout',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Apakah kamu yakin ingin keluar?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Berhasil logout')),
-              );
-            },
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
+ 
 }
