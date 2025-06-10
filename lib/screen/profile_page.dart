@@ -49,6 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         context,
                         MaterialPageRoute(builder: (_) => const EditProfilePage()),
                       );
+                      if (!context.mounted) return;
                       if (result == true) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Profil berhasil diperbarui')),

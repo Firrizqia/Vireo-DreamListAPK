@@ -41,33 +41,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   void _saveProfile() async {
-  if (_formKey.currentState!.validate()) {
-    final user = UserModel(
-      id: 1,
-      name: _nameController.text,
-      username: _usernameController.text,
-      email: _emailController.text,
-      age: _ageController.text,
-      gender: _gender,
-    );
+    if (_formKey.currentState!.validate()) {
+      final user = UserModel(
+        id: 1,
+        name: _nameController.text,
+        username: _usernameController.text,
+        email: _emailController.text,
+        age: _ageController.text,
+        gender: _gender,
+      );
 
-    final existingUser = await dbHelper.getUser();
+      final existingUser = await dbHelper.getUser();
 
-    if (existingUser == null) {
-      await dbHelper.insertUser(user);
-    } else {
-      await dbHelper.updateUser(user);
+      if (existingUser == null) {
+        await dbHelper.insertUser(user);
+      } else {
+        await dbHelper.updateUser(user);
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profil berhasil diperbarui')),
+      );
+
+      Navigator.pop(
+        context,
+        true,
+      ); // penting agar ProfilePage tahu profil diperbarui
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profil berhasil diperbarui')),
-    );
-
-    Navigator.pop(context, true); // penting agar ProfilePage tahu profil diperbarui
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -83,14 +86,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
           key: _formKey,
           child: Column(
             children: [
-              _buildTextField(label: 'Nama Lengkap', controller: _nameController),
+              _buildTextField(
+                label: 'Nama Lengkap',
+                controller: _nameController,
+              ),
               SizedBox(height: 15),
-              _buildTextField(label: 'Username', controller: _usernameController),
+              _buildTextField(
+                label: 'Username',
+                controller: _usernameController,
+              ),
               SizedBox(height: 15),
-              _buildTextField(label: 'Email', controller: _emailController, validator: (val) {
-                if (val == null || !val.contains('@')) return 'Masukkan email yang valid';
-                return null;
-              }),
+              _buildTextField(
+                label: 'Email',
+                controller: _emailController,
+                validator: (val) {
+                  if (val == null || !val.contains('@')) {
+                    return 'Masukkan email yang valid';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 15),
               _buildTextField(
                 label: 'Umur',
@@ -101,10 +116,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
               DropdownButtonFormField<String>(
                 value: _gender,
                 decoration: InputDecoration(labelText: 'Jenis Kelamin'),
-                items: _genderOptions
-                    .map((gender) =>
-                        DropdownMenuItem(value: gender, child: Text(gender)))
-                    .toList(),
+                items:
+                    _genderOptions
+                        .map(
+                          (gender) => DropdownMenuItem(
+                            value: gender,
+                            child: Text(gender),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (val) {
                   setState(() {
                     _gender = val!;
@@ -136,12 +156,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
       keyboardType: keyboardType,
-      validator: validator ?? (val) {
-        if (val == null || val.isEmpty) return '$label tidak boleh kosong';
-        return null;
-      },
+      validator:
+          validator ??
+          (val) {
+            if (val == null || val.isEmpty) return '$label tidak boleh kosong';
+            return null;
+          },
     );
   }
 }
