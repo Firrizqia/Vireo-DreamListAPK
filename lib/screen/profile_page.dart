@@ -1,8 +1,33 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:vireo/screen/edit_profile.dart';
+import 'package:vireo/db/db_helper.dart';
+import 'package:vireo/models/user_model.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final dbHelper = DatabaseHelper();
+  UserModel? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = await dbHelper.getUser();
+    setState(() {
+      _user = user;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +46,23 @@ class ProfilePage extends StatelessWidget {
                   buildMenuItem(
                     icon: Icons.edit,
                     label: 'Edit Profil',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => EditProfilePage()),
-                    ),
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EditProfilePage(),
+                        ),
+                      );
+                      if (!context.mounted) return;
+                      if (result == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profil berhasil diperbarui'),
+                          ),
+                        );
+                        _loadUserData();
+                      }
+                    },
                   ),
                   const Divider(height: 0),
                   buildMenuItem(
@@ -43,22 +81,30 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget buildUserInfo() {
+    final hasProfileImage =
+        _user?.profileImagePath != null && _user!.profileImagePath.isNotEmpty;
+
     return Column(
-      children: const [
+      children: [
         CircleAvatar(
           radius: 45,
-          backgroundColor: Color(0xFFECECEC),
-          child: Icon(Icons.person, size: 45, color: Colors.blueGrey),
+          backgroundColor: const Color(0xFFECECEC),
+          backgroundImage:
+              hasProfileImage ? FileImage(File(_user!.profileImagePath)) : null,
+          child:
+              !hasProfileImage
+                  ? const Icon(Icons.person, size: 45, color: Colors.blueGrey)
+                  : null,
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
-          'Ahmad User!',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          _user?.name ?? 'Nama Pengguna',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
-          'ahmaduser@email.com',
-          style: TextStyle(color: Colors.grey),
+          _user?.email ?? 'email@example.com',
+          style: const TextStyle(color: Colors.grey),
         ),
       ],
     );
@@ -83,44 +129,43 @@ class ProfilePage extends StatelessWidget {
   void showTentangAplikasiDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        title: Row(
-          children: const [
-            Icon(Icons.info_outline, color: Colors.blueGrey),
-            SizedBox(width: 10),
-            Text('Tentang Aplikasi'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'Vireo',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            SizedBox(height: 8),
-            Text('Versi 1.0.0'),
-            SizedBox(height: 8),
-            Text(
-              'Aplikasi ini membantu Anda mengelola daftar impian, menulis jurnal harian, dan melacak progres hidup Anda dengan mudah.',
+            title: Row(
+              children: const [
+                Icon(Icons.info_outline, color: Colors.blueGrey),
+                SizedBox(width: 10),
+                Text('Tentang Aplikasi'),
+              ],
             ),
-            SizedBox(height: 16),
-            Text('© 2025 Vireo Team'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tutup'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'Vireo',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text('Versi 1.0.0'),
+                SizedBox(height: 8),
+                Text(
+                  'Aplikasi ini membantu Anda mengelola daftar impian, menulis jurnal harian, dan melacak progres hidup Anda dengan mudah.',
+                ),
+                SizedBox(height: 16),
+                Text('© 2025 Vireo Team'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Tutup'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
-
- 
 }

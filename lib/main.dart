@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'package:vireo/constants/primary_colors.dart';
 import 'package:vireo/db/db_helper.dart';
 import 'package:vireo/models/dream_model.dart';
 import 'package:vireo/screen/add_dream.dart';
@@ -6,8 +10,6 @@ import 'package:vireo/screen/diary_page.dart';
 import 'package:vireo/screen/dream_list.dart';
 import 'package:vireo/screen/home_page.dart';
 import 'package:vireo/screen/profile_page.dart';
-import 'package:vireo/constants/primary_colors.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:vireo/screen/onboarding_page.dart';
 
 // Inisialisasi plugin notifikasi
@@ -17,7 +19,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Pengaturan awal notifikasi untuk Android
+  // Pengaturan notifikasi
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('ic_stat_notify');
 
@@ -25,28 +27,23 @@ void main() async {
     android: initializationSettingsAndroid,
   );
 
-  // Inisialisasi plugin
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   runApp(const MyApp());
 }
 
 Future<void> showNotification() async {
-  // Ambil waktu saat ini
-
-  // Buat notifikasi
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-        'channel_id',
-        'channel_name',
-        channelDescription: 'your_channel_description',
-        importance: Importance.high,
-        priority: Priority.high,
-      );
-
-  const NotificationDetails platformChannelSpecifics = NotificationDetails(
-    android: androidPlatformChannelSpecifics,
+    'channel_id',
+    'channel_name',
+    channelDescription: 'your_channel_description',
+    importance: Importance.high,
+    priority: Priority.high,
   );
+
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
 
   await flutterLocalNotificationsPlugin.show(
     0,
@@ -56,8 +53,40 @@ Future<void> showNotification() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _showOnboarding = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstRun();
+  }
+
+  Future<void> _checkFirstRun() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isFirstRun = prefs.getBool('isFirstRun') ?? true;
+
+    if (!isFirstRun) {
+      setState(() {
+        _showOnboarding = false;
+      });
+    }
+  }
+
+  void _onOnboardingFinished() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isFirstRun', false);
+    setState(() {
+      _showOnboarding = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +97,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         highlightColor: Colors.transparent,
       ),
-      home: const OnboardingScreen(),
+      home: _showOnboarding
+          ? OnboardingScreen(onFinish: _onOnboardingFinished)
+          : const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -82,21 +113,32 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+  List<Dream> dreamList = [];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDreams();
+    _pages = [
+      HomePage(onSelengkapnyaTap: _goToDreamList),
+      const DreamList(),
+      const SizedBox(), // index 2 untuk tombol +
+      const DiaryPage(),
+      const ProfilePage(),
+    ];
+  }
+
   void _notifPengembang() {
     showNotification();
   }
 
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    const HomePage(),
-    const DreamList(),
-    const HomePage(), // Placeholder supaya indeks tetap konsisten
-    const DiaryPage(),
-    const ProfilePage(),
-  ];
-
-  List<Dream> dreamList = [];
+  void _goToDreamList() {
+    setState(() {
+      _selectedIndex = 1;
+    });
+  }
 
   void _onItemTapped(int index) {
     if (index == 2) {
@@ -108,7 +150,7 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-   Future<void> _loadDreams() async {
+  Future<void> _loadDreams() async {
     final dreams = await DatabaseHelper().getDreams();
     setState(() {
       dreamList = dreams;
@@ -127,7 +169,7 @@ class _MainScreenState extends State<MainScreen> {
                 leading: const Icon(Icons.auto_awesome_sharp),
                 title: const Text('Add Dream'),
                 onTap: () async {
-                  Navigator.pop(context); // tutup bottom sheet
+                  Navigator.pop(context);
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -135,12 +177,10 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   );
                   if (result == true) {
-                    // Jika AddDreamPage pop dengan "true", reload data
                     _loadDreams();
                   }
                 },
               ),
-
               ListTile(
                 leading: const Icon(Icons.book),
                 title: const Text('Add Diary'),
@@ -164,7 +204,6 @@ class _MainScreenState extends State<MainScreen> {
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
-
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
