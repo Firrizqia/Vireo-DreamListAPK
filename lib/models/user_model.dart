@@ -5,6 +5,7 @@ class UserModel {
   String email;
   String age;
   String gender;
+  String motto;
   String profileImagePath;
 
 
@@ -15,6 +16,7 @@ class UserModel {
     required this.email,
     required this.age,
     required this.gender,
+    required this.motto,
     required this.profileImagePath,
   });
 
@@ -26,6 +28,7 @@ class UserModel {
       'email': email,
       'age': age,
       'gender': gender,
+      'motto': motto,
       'profileImagePath': profileImagePath,
     };
   }
@@ -38,6 +41,7 @@ class UserModel {
       email: map['email'],
       age: map['age'],
       gender: map['gender'],
+      motto: map['motto'],
       profileImagePath: map['profileImagePath'] ?? '',
     );
   }

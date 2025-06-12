@@ -21,6 +21,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _ageController = TextEditingController();
+  final _mottoController = TextEditingController();
   String _gender = 'Laki-laki';
   String? _imagePath;
 
@@ -40,6 +41,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _usernameController.text = user.username;
         _emailController.text = user.email;
         _ageController.text = user.age;
+        _mottoController.text = user.motto;
         _gender = user.gender;
         _imagePath = user.profileImagePath;
       });
@@ -69,6 +71,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         username: _usernameController.text,
         email: _emailController.text,
         age: _ageController.text,
+        motto: _mottoController.text,
         gender: _gender,
         profileImagePath: _imagePath ?? '',
       );
@@ -118,6 +121,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _buildTextField(label: 'Nama Lengkap', controller: _nameController),
               SizedBox(height: 15),
               _buildTextField(label: 'Username', controller: _usernameController),
+              SizedBox(height: 15),
+              _buildTextField(label: 'Motto', controller: _mottoController),
               SizedBox(height: 15),
               _buildTextField(
                 label: 'Email',

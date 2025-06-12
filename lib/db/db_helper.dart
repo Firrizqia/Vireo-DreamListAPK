@@ -20,7 +20,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'dreams.db');
 
     //un-komen jika ingin menghapus database lama
-    //await deleteDatabase(path);
+    // await deleteDatabase(path);
 
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
@@ -47,6 +47,7 @@ class DatabaseHelper {
       email TEXT,
       age TEXT,
       gender TEXT,
+      motto TEXT,
       profileImagePath TEXT
     )
   ''');

@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
         ),
         Text(
-          'Satu Langkah Lebih Dekat Menuju Mimpi',
+          _user?.motto ?? 'Satu Langkah Lebih Dekat Menuju Mimpi',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,
