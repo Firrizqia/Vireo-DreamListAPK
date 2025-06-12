@@ -4,6 +4,7 @@ import 'package:vireo/db/db_helper.dart';
 import 'package:vireo/models/dream_model.dart';
 import 'package:vireo/models/user_model.dart';
 import 'package:vireo/screen/dreamdetail_page.dart';
+import 'package:vireo/models/diary_model.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback? onSelengkapnyaTap;
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<DiaryModel> _diaries = [];
   final dbHelper = DatabaseHelper();
   UserModel? _user;
 
@@ -23,6 +25,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _loadUserData();
     _loadDreams();
+    _loadDiaries();
   }
 
   Future<void> _loadUserData() async {
@@ -33,6 +36,13 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadDreams() async {
     _dreams = await dbHelper.getDreams();
     setState(() {});
+  }
+
+  Future<void> _loadDiaries() async {
+    final data = await DatabaseHelper().getAllDiary();
+    setState(() {
+      _diaries = data;
+    });
   }
 
   @override
@@ -73,7 +83,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 20),
               Text('Diary Ku', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 10),
-              _buildProgressList(),
+              _buildDiaryList(),
             ],
           ),
         ),
@@ -213,18 +223,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProgressList() {
+  Widget _buildDiaryList() {
+    if (_diaries.isEmpty) {
+      return Center(
+        child: Text("Diary kosong", style: TextStyle(color: Colors.grey[600])),
+      );
+    }
+
     return Column(
-      children: [
-        _progressItem('12 Januari 2023', 'Bangun lebih pagi'),
-        _progressItem('14 Januari 2023', 'Olahraga 30 menit'),
-        _progressItem('14 Januari 2023', 'Menabung 10k Tiap Hari'),
-        _progressItem('27 Maret 2023', 'Beli Emas'),
-      ],
+      children:
+          _diaries.map((diary) {
+            return _diaryItem(diary.judul, diary.isi);
+          }).toList(),
     );
   }
 
-  Widget _progressItem(String date, String tittle) {
+  Widget _diaryItem(String judul, String isi) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -257,10 +271,13 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tittle, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(judul, style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
                 Text(
-                  date,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  isi,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
                 ),
               ],
             ),

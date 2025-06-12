@@ -5,12 +5,14 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:vireo/constants/primary_colors.dart';
 import 'package:vireo/db/db_helper.dart';
 import 'package:vireo/models/dream_model.dart';
+import 'package:vireo/screen/add_diary.dart';
 import 'package:vireo/screen/add_dream.dart';
 import 'package:vireo/screen/diary_page.dart';
 import 'package:vireo/screen/dream_list.dart';
 import 'package:vireo/screen/home_page.dart';
 import 'package:vireo/screen/profile_page.dart';
 import 'package:vireo/screen/onboarding_page.dart';
+import 'package:vireo/service/reminder_service.dart';
 
 // Inisialisasi plugin notifikasi
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -29,21 +31,23 @@ void main() async {
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
+  await checkDreamReminders();
   runApp(const MyApp());
 }
 
 Future<void> showNotification() async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-    'channel_id',
-    'channel_name',
-    channelDescription: 'your_channel_description',
-    importance: Importance.high,
-    priority: Priority.high,
-  );
+        'channel_id',
+        'channel_name',
+        channelDescription: 'your_channel_description',
+        importance: Importance.high,
+        priority: Priority.high,
+      );
 
-  const NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+  );
 
   await flutterLocalNotificationsPlugin.show(
     0,
@@ -97,9 +101,10 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         highlightColor: Colors.transparent,
       ),
-      home: _showOnboarding
-          ? OnboardingScreen(onFinish: _onOnboardingFinished)
-          : const MainScreen(),
+      home:
+          _showOnboarding
+              ? OnboardingScreen(onFinish: _onOnboardingFinished)
+              : const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -128,10 +133,6 @@ class _MainScreenState extends State<MainScreen> {
       const DiaryPage(),
       const ProfilePage(),
     ];
-  }
-
-  void _notifPengembang() {
-    showNotification();
   }
 
   void _goToDreamList() {
@@ -184,8 +185,17 @@ class _MainScreenState extends State<MainScreen> {
               ListTile(
                 leading: const Icon(Icons.book),
                 title: const Text('Add Diary'),
-                onTap: () {
-                  _notifPengembang();
+                onTap: () async {
+                  Navigator.pop(context);
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddDiaryPage(),
+                    ),
+                  );
+                  if (result == true) {
+                    _loadDreams();
+                  }
                 },
               ),
             ],

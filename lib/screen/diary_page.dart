@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vireo/constants/primary_colors.dart';
-import 'package:vireo/screen/isi_diary.dart';
+import 'package:vireo/db/db_helper.dart';
+import 'package:vireo/models/diary_model.dart';
+import 'package:vireo/screen/add_diary.dart';
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
@@ -10,13 +12,68 @@ class DiaryPage extends StatefulWidget {
 }
 
 class _DiaryPageState extends State<DiaryPage> {
-  final List<Map<String, String>> _diaryEntries = const [
-    {'title': 'Samle-', 'date': '8 Oktober 2025'},
-    {'title': 'Shiba-', 'date': '15 Oktober 2025'},
-    {'title': 'Menge- ', 'date': '20 November 2025'},
-    {'title': 'Menge-', 'date': '30 November 2025'},
-    {'title': 'Berke-', 'date': '15 Desember 2025'},
-  ];
+  List<DiaryModel> _diaries = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDiaries();
+  }
+
+  Future<void> _loadDiaries() async {
+    final data = await DatabaseHelper().getAllDiary();
+    setState(() {
+      _diaries = data;
+    });
+  }
+
+  void _navigateToAddDiary() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddDiaryPage(),
+      ),
+    );
+    _loadDiaries();
+  }
+
+  void _navigateToEditDiary(DiaryModel diary) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddDiaryPage(diary: diary),
+      ),
+    );
+    _loadDiaries();
+  }
+
+  Future<void> _confirmDelete(DiaryModel diary) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Hapus Diary"),
+        content: const Text("Apakah Anda yakin ingin menghapus diary ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              "Hapus",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await DatabaseHelper().deleteDiary(diary.id!);
+      _loadDiaries();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,100 +94,95 @@ class _DiaryPageState extends State<DiaryPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: ListView.builder(
-          itemCount: _diaryEntries.length,
-          itemBuilder: (context, index) {
-            final entry = _diaryEntries[index];
-            return _DiaryItem(
-              title: entry['title'] ?? '',
-              date: entry['date'] ?? '',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const IsiDiaryPage(),
-                  ),
-                );
-              },
-            );
-          },
-        ),
+        child: _diaries.isEmpty
+            ? const Center(
+                child: Text(
+                  'Diary kosong',
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
+              )
+            : ListView.builder(
+                itemCount: _diaries.length,
+                itemBuilder: (context, index) {
+                  final diary = _diaries[index];
+                  return GestureDetector(
+                    onTap: () => _navigateToEditDiary(diary),
+                    child: _DiaryItem(
+                      diary: diary,
+                      onDelete: () => _confirmDelete(diary),
+                    ),
+                  );
+                },
+              ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToAddDiary,
+        backgroundColor: primaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 }
 
 class _DiaryItem extends StatelessWidget {
-  final String title;
-  final String date;
-  final VoidCallback onTap;
+  final DiaryModel diary;
+  final VoidCallback onDelete;
 
   const _DiaryItem({
-    required this.title,
-    required this.date,
-    required this.onTap,
+    required this.diary,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: accentColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: accentColor,
-              offset: const Offset(0, 2),
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _DiaryInfo(title: title, date: date),
-            const Icon(Icons.more_vert),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: accentColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.4),
+            offset: const Offset(0, 2),
+            blurRadius: 5,
+          ),
+        ],
       ),
-    );
-  }
-}
-
-class _DiaryInfo extends StatelessWidget {
-  final String title;
-  final String date;
-
-  const _DiaryInfo({
-    required this.title,
-    required this.date,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  diary.judul,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  diary.isi,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          date,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey[600],
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: onDelete,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
