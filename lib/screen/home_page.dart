@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 10),
               _buildDreamList(),
               const SizedBox(height: 20),
-              Text('Progres Ku', style: TextStyle(fontWeight: FontWeight.w600)),
+              Text('Diary Ku', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 10),
               _buildProgressList(),
             ],
@@ -54,7 +54,7 @@ Widget _buildHeader() {
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
       ),
       Text(
-        'Satu Langkah Lebih Dekat Menuju Impian',
+        'Satu Langkah Lebih Dekat Menuju Mimpi',
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
