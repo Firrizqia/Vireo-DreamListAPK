@@ -3,13 +3,12 @@ import 'package:vireo/constants/primary_colors.dart';
 import 'package:vireo/db/db_helper.dart';
 import 'package:vireo/models/dream_model.dart';
 import 'package:vireo/models/user_model.dart';
-import 'package:vireo/screen/dream_list.dart';
 import 'package:vireo/screen/dreamdetail_page.dart';
 
 class HomePage extends StatefulWidget {
-  
+  final VoidCallback? onSelengkapnyaTap;
 
-  const HomePage({super.key});
+  const HomePage({super.key, this.onSelengkapnyaTap});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -57,12 +56,7 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => DreamList()),
-                      );
-                    },
+                    onTap: widget.onSelengkapnyaTap,
                     child: Text(
                       'Selengkapnya',
                       style: TextStyle(

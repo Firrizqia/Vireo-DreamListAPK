@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:vireo/constants/primary_colors.dart';
-import 'package:vireo/main.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  final VoidCallback onFinish;
+
+  const OnboardingScreen({super.key, required this.onFinish});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -161,11 +162,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       onPressed: () {
                         if (_currentIndex == onboardingData.length - 1) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const MainScreen(),
-                            ),
-                          );
+                          widget.onFinish();
                         } else {
                           _controller.nextPage(
                             duration: const Duration(milliseconds: 400),
