@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:vireo/constants/primary_colors.dart';
 import 'package:vireo/db/db_helper.dart';
+import 'package:vireo/models/dream_model.dart';
 import 'package:vireo/models/user_model.dart';
+import 'package:vireo/screen/dream_list.dart';
+import 'package:vireo/screen/dreamdetail_page.dart';
 
 class HomePage extends StatefulWidget {
+  
+
   const HomePage({super.key});
 
   @override
@@ -18,10 +23,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadUserData();
+    _loadDreams();
   }
 
   Future<void> _loadUserData() async {
     _user = await dbHelper.getUser();
+    setState(() {});
+  }
+
+  Future<void> _loadDreams() async {
+    _dreams = await dbHelper.getDreams();
     setState(() {});
   }
 
@@ -38,7 +49,31 @@ class _HomePageState extends State<HomePage> {
             children: [
               _buildHeader(),
               const SizedBox(height: 20),
-              Text('Mimpi ku', style: TextStyle(fontWeight: FontWeight.w600)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Mimpi ku',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => DreamList()),
+                      );
+                    },
+                    child: Text(
+                      'Selengkapnya',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 10),
               _buildDreamList(),
               const SizedBox(height: 20),
@@ -80,38 +115,54 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  final List<Map<String, dynamic>> dreams = [
-    {'date': '5 Juli 2025', 'title': 'Punya Mobil Sport', 'progress': 0.6},
-    {
-      'date': '20 Agustus 2027',
-      'title': 'Bisa Beli Rumah Cash',
-      'progress': 0.4,
-    },
-    {
-      'date': '12 Januari 2033',
-      'title': 'Pergi ke Planet Mars',
-      'progress': 0.1,
-    },
-    {'date': '21 Maret 2047', 'title': 'Pergi antar universe', 'progress': 0.0},
-  ];
+  List<Dream> _dreams = [];
 
   Widget _buildDreamList() {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: dreams.length,
-        itemBuilder: (context, index) {
-          final dream = dreams[index];
-          final Color cardColor = index.isEven ? primaryColor : secondaryColor;
-          return _dreamCard(
-            dream['date'],
-            dream['title'],
-            dream['progress'],
-            cardColor,
-          );
-        },
-      ),
+    if (_dreams.isEmpty) {
+      return Container(
+        height: 100,
+        alignment: Alignment.center,
+        child: Text(
+          "Belum ada mimpi yang kamu buat. Yuk mulai membuat mimpimu!",
+          style: TextStyle(color: Colors.grey[600]),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _dreams.length > 5 ? 5 : _dreams.length,
+            itemBuilder: (context, index) {
+              final dream = _dreams[index];
+              final Color cardColor =
+                  index.isEven ? primaryColor : secondaryColor;
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DreamDetailPage(dream: dream),
+                    ),
+                  );
+                },
+                child: _dreamCard(
+                  dream.date,
+                  dream.title,
+                  dream.progress,
+                  cardColor,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 

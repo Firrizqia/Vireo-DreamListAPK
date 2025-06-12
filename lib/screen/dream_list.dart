@@ -37,7 +37,6 @@ class _DreamListState extends State<DreamList> {
     });
   }
 
-  // Tambahkan fungsi untuk navigasi ke AddDreamPage
   Future<void> _goToAddDreamPage() async {
     final result = await Navigator.push(
       context,
@@ -45,7 +44,6 @@ class _DreamListState extends State<DreamList> {
     );
 
     if (result == true) {
-      // Kalau AddDreamPage pop dengan "true", reload data
       _loadDreams();
     }
   }
