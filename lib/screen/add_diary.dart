@@ -48,6 +48,7 @@ class _AddDiaryPageState extends State<AddDiaryPage> {
         jam: jam,
       );
       await _dbHelper.updateDiary(updatedDiary);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Diary berhasil diperbarui')),
       );
@@ -59,11 +60,12 @@ class _AddDiaryPageState extends State<AddDiaryPage> {
         jam: jam,
       );
       await _dbHelper.insertDiary(newDiary);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Diary berhasil disimpan')),
       );
     }
-
+    if (!mounted) return;
     Navigator.pop(context, true); // True menandakan ada perubahan
   }
 
@@ -88,6 +90,7 @@ class _AddDiaryPageState extends State<AddDiaryPage> {
 
     if (confirmed == true && widget.diary != null) {
       await _dbHelper.deleteDiary(widget.diary!.id!);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Diary dihapus')),
       );

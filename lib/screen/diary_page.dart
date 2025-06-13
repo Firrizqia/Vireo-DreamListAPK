@@ -143,7 +143,7 @@ class _DiaryItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: accentColor.withOpacity(0.4),
+            color: accentColor,
             offset: const Offset(0, 2),
             blurRadius: 5,
           ),

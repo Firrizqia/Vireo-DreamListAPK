@@ -15,17 +15,12 @@ Future<void> checkDreamReminders() async {
   final besok = DateTime(now.year, now.month, now.day + 1);
 
   for (final dream in dreams) {
-    try {
-      final dueDate = dateFormat.parse(dream.date); // konversi dari string
+    final dueDate = dateFormat.parse(dream.date); // konversi dari string
 
-      final tanggalTarget = DateTime(dueDate.year, dueDate.month, dueDate.day);
+    final tanggalTarget = DateTime(dueDate.year, dueDate.month, dueDate.day);
 
-      if (tanggalTarget == besok) {
-        await showReminderNotification(dream.title);
-      }
-    } catch (e) {
-      // Handle error jika format tanggal salah
-      print('Format tanggal salah untuk mimpi: ${dream.title}');
+    if (tanggalTarget == besok) {
+      await showReminderNotification(dream.title);
     }
   }
 }
@@ -44,7 +39,7 @@ Future<void> showReminderNotification(String dreamTitle) async {
   await flutterLocalNotificationsPlugin.show(
     0,
     'Reminder Mimpi',
-    'Besok adalah deadline mimpi: $dreamTitle',
+    'Besok adalah deadline mimpi: $dreamTitle yang harus kamu capai!',
     details,
   );
 }

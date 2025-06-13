@@ -35,27 +35,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-Future<void> showNotification() async {
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-        'channel_id',
-        'channel_name',
-        channelDescription: 'your_channel_description',
-        importance: Importance.high,
-        priority: Priority.high,
-      );
-
-  const NotificationDetails platformChannelSpecifics = NotificationDetails(
-    android: androidPlatformChannelSpecifics,
-  );
-
-  await flutterLocalNotificationsPlugin.show(
-    0,
-    'Mohon Maaf',
-    'Aplikasi sedang dalam pengembangan',
-    platformChannelSpecifics,
-  );
-}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

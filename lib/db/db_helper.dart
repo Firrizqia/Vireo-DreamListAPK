@@ -21,7 +21,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'dreams.db');
 
     // Hapus komentar berikut jika ingin me-reset database saat pengembangan:
-    await deleteDatabase(path);
+    // await deleteDatabase(path);
 
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
