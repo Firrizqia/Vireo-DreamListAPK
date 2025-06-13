@@ -25,9 +25,7 @@ class _DreamListState extends State<DreamList> {
   List<Dream> dreamList = [];
   List<Dream> filteredDreamList = [];
 
-  void loadDreamsFromOutside() {
-    _loadDreams();
-  }
+
 
   @override
   void initState() {

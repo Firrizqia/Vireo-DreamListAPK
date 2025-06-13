@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:vireo/constants/primary_colors.dart';
 import 'package:vireo/db/db_helper.dart';
+import 'package:vireo/models/diary_model.dart';
 import 'package:vireo/models/dream_model.dart';
 import 'package:vireo/screen/add_diary.dart';
 import 'package:vireo/screen/add_dream.dart';
@@ -79,10 +80,9 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         highlightColor: Colors.transparent,
       ),
-      home:
-          _showOnboarding
-              ? OnboardingScreen(onFinish: _onOnboardingFinished)
-              : const MainScreen(),
+      home: _showOnboarding
+          ? OnboardingScreen(onFinish: _onOnboardingFinished)
+          : const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -98,11 +98,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   List<Dream> dreamList = [];
+  List<DiaryModel> diaries = [];
 
   @override
   void initState() {
     super.initState();
-    _loadDreams();
+    _loadData();
   }
 
   void _goToDreamList() {
@@ -121,10 +122,12 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Future<void> _loadDreams() async {
+  Future<void> _loadData() async {
     final dreams = await DatabaseHelper().getDreams();
+    final diaryList = await DatabaseHelper().getAllDiary();
     setState(() {
       dreamList = dreams;
+      diaries = diaryList;
     });
   }
 
@@ -148,7 +151,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   );
                   if (result == true) {
-                    _loadDreams();
+                    _loadData();
                   }
                 },
               ),
@@ -164,7 +167,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   );
                   if (result == true) {
-                    _loadDreams();
+                    _loadData();
                   }
                 },
               ),
@@ -184,7 +187,10 @@ class _MainScreenState extends State<MainScreen> {
         dreams: dreamList,
       ),
       const SizedBox(),
-      const DiaryPage(),
+      DiaryPage(
+        key: UniqueKey(),
+        diary: diaries,
+      ),
       const ProfilePage(),
     ];
 

@@ -5,14 +5,16 @@ import 'package:vireo/models/diary_model.dart';
 import 'package:vireo/screen/add_diary.dart';
 
 class DiaryPage extends StatefulWidget {
-  const DiaryPage({super.key});
+  const DiaryPage({super.key, required this.diary});
+
+  final List<DiaryModel> diary;
 
   @override
   State<DiaryPage> createState() => _DiaryPageState();
 }
 
 class _DiaryPageState extends State<DiaryPage> {
-  List<DiaryModel> _diaries = [];
+  List<DiaryModel> diaries = [];
 
   @override
   void initState() {
@@ -23,7 +25,7 @@ class _DiaryPageState extends State<DiaryPage> {
   Future<void> _loadDiaries() async {
     final data = await DatabaseHelper().getAllDiary();
     setState(() {
-      _diaries = data;
+      diaries = data;
     });
   }
 
@@ -94,7 +96,7 @@ class _DiaryPageState extends State<DiaryPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: _diaries.isEmpty
+        child: diaries.isEmpty
             ? const Center(
                 child: Text(
                   'Diary kosong',
@@ -102,9 +104,9 @@ class _DiaryPageState extends State<DiaryPage> {
                 ),
               )
             : ListView.builder(
-                itemCount: _diaries.length,
+                itemCount: diaries.length,
                 itemBuilder: (context, index) {
-                  final diary = _diaries[index];
+                  final diary = diaries[index];
                   return GestureDetector(
                     onTap: () => _navigateToEditDiary(diary),
                     child: _DiaryItem(
