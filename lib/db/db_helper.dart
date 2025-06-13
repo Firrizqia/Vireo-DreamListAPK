@@ -130,10 +130,7 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> deleteUser(int id) async {
-    final db = await database;
-    await db.delete('users', where: 'id = ?', whereArgs: [id]);
-  }
+
 
   // ============================================
   // DIARY OPERATIONS
