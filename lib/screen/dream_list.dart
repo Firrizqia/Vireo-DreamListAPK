@@ -189,14 +189,13 @@ class _DreamListState extends State<DreamList> {
             children: [
               SlidableAction(
                 onPressed: (context) {
-                  // Navigasi ke halaman edit (gunakan AddDreamPage jika bisa reuse)
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder:
                           (context) => AddDreamPage(
                             existingDream:
-                                dream, // pastikan AddDreamPage bisa handle edit
+                                dream, 
                           ),
                     ),
                   ).then((result) {

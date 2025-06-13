@@ -181,7 +181,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      HomePage(onSelengkapnyaTap: _goToDreamList),
+      HomePage(onSelengkapnyaTap: _goToDreamList, key: UniqueKey()),
       DreamList(
         key: UniqueKey(),
         dreams: dreamList,
