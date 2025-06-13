@@ -8,7 +8,9 @@ import 'package:vireo/screen/add_dream.dart';
 import 'package:vireo/screen/dreamdetail_page.dart';
 
 class DreamList extends StatefulWidget {
-  const DreamList({super.key});
+  const DreamList({super.key, required this.dreams});
+
+  final List<Dream> dreams;
 
   @override
   State<DreamList> createState() => _DreamListState();
@@ -24,14 +26,16 @@ class _DreamListState extends State<DreamList> {
   List<Dream> filteredDreamList = [];
 
   void loadDreamsFromOutside() {
-  _loadDreams();
-}
-
+    _loadDreams();
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadDreams();
+    setState(() {
+      dreamList = widget.dreams;
+      filteredDreamList = widget.dreams;
+    });
   }
 
   Future<void> _loadDreams() async {
@@ -257,7 +261,7 @@ class _DreamListState extends State<DreamList> {
                   builder: (context) => DreamDetailPage(dream: dream),
                 ),
               );
-              _loadDreams(); 
+              _loadDreams();
             },
             child: _dreamListCard(
               dream.date,

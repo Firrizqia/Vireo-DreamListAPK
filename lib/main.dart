@@ -35,7 +35,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -99,19 +98,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   List<Dream> dreamList = [];
-  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     _loadDreams();
-    _pages = [
-      HomePage(onSelengkapnyaTap: _goToDreamList),
-      const DreamList(),
-      const SizedBox(), // index 2 untuk tombol +
-      const DiaryPage(),
-      const ProfilePage(),
-    ];
   }
 
   void _goToDreamList() {
@@ -186,8 +177,19 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      HomePage(onSelengkapnyaTap: _goToDreamList),
+      DreamList(
+        key: UniqueKey(),
+        dreams: dreamList,
+      ),
+      const SizedBox(),
+      const DiaryPage(),
+      const ProfilePage(),
+    ];
+
     return Scaffold(
-      body: _selectedIndex == 2 ? _pages[0] : _pages[_selectedIndex],
+      body: _selectedIndex == 2 ? pages[0] : pages[_selectedIndex],
       bottomNavigationBar: ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
